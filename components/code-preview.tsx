@@ -8,7 +8,7 @@ import { useToast } from "@/components/ui/use-toast"
 import Prism from "prismjs" // Import Prism.js
 import "prismjs/themes/prism-tomorrow.css" // Import a Prism.js theme
 import "prismjs/components/prism-javascript" // Add language support (e.g., JavaScript)
-import "prismjs/components/prism-html" // Add language support (e.g., HTML)
+import 'prismjs/components/prism-markup'; // Add language support (e.g., HTML)
 import "prismjs/components/prism-css" // Add language support (e.g., CSS)
 
 interface CodePreviewProps {
