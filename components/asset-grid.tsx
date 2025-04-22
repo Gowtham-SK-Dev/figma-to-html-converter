@@ -23,14 +23,24 @@ export default function AssetGrid({ assets, onDownload }: AssetGridProps) {
     )
   }
 
+  const handleImageError = (event: React.SyntheticEvent<HTMLImageElement>) => {
+    event.currentTarget.src = "/placeholder.svg"
+    event.currentTarget.alt = "Placeholder image"
+  }
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       {assets.map((asset, index) => (
         <div key={index} className="border rounded-lg p-2 group relative">
           <div className="aspect-square bg-muted rounded-md mb-2 overflow-hidden">
-            <img src={asset.url || "/placeholder.svg"} alt={asset.name} className="w-full h-full object-cover" />
+            <img
+              src={asset.url || "/placeholder.svg"}
+              alt={asset.name}
+              className="w-full h-full object-cover"
+              onError={handleImageError}
+            />
           </div>
-          <p className="text-sm font-medium truncate">{asset.name}</p>
+          <p className="text-sm font-medium truncate" title={asset.name}>{asset.name}</p>
           <p className="text-xs text-muted-foreground">{asset.size}</p>
 
           {onDownload && (

@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { motion } from "framer-motion"
 import { ArrowRight, Copy, Download, Loader2 } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
-import { mockConvertFigmaToHtml, type ConversionResult } from "@/lib/mock-converter"
+import { fetchFigmaFile, generateCodeFromFigmaNodes } from "@/lib/figma-api"
 import CodePreview from "@/components/code-preview"
 import { saveToLocalStorage } from "@/lib/storage"
 import { isValidFigmaUrl } from "@/lib/utils"
@@ -35,7 +35,6 @@ export default function AdvancedPage() {
       return
     }
 
-    // Basic validation for Figma URL
     if (!isValidFigmaUrl(figmaUrl)) {
       toast({
         title: "Invalid Figma URL",
@@ -45,7 +44,6 @@ export default function AdvancedPage() {
       return
     }
 
-    // Basic validation for token format
     if (figmaToken.length < 10) {
       toast({
         title: "Invalid Access Token",
@@ -58,36 +56,33 @@ export default function AdvancedPage() {
     setIsLoading(true)
 
     try {
-      // Mock conversion process
-      setTimeout(() => {
-        const result = mockConvertFigmaToHtml()
-        setGeneratedCode(result)
+      const fileId = figmaUrl.split("/").pop() || "unknown"
+      const figmaData = await fetchFigmaFile(fileId, figmaToken)
+      const nodes = figmaData.document.children || []
+      const result = await generateCodeFromFigmaNodes(nodes, exportFormat)
 
-        // Extract file ID from URL for a more realistic experience
-        const fileId = figmaUrl.split("/").pop() || "unknown"
+      setGeneratedCode(result)
 
-        // Save to history
-        saveToLocalStorage({
-          id: Date.now().toString(),
-          figmaUrl,
-          timestamp: new Date().toISOString(),
-          preview: "/placeholder.svg?height=200&width=300",
-          name: `Advanced Project - ${fileId}`,
-        })
+      saveToLocalStorage({
+        id: Date.now().toString(),
+        figmaUrl,
+        timestamp: new Date().toISOString(),
+        preview: figmaData.thumbnailUrl || "/placeholder.svg",
+        name: `Advanced Project - ${fileId}`,
+      })
 
-        setIsLoading(false)
-
-        toast({
-          title: "Conversion complete",
-          description: "Your Figma design has been converted to code",
-        })
-      }, 2000)
+      toast({
+        title: "Conversion complete",
+        description: "Your Figma design has been converted to code",
+      })
     } catch (error) {
+      console.error("Error converting Figma design:", error)
       toast({
         title: "Error converting Figma design",
         description: "Please check your Figma URL and access token",
         variant: "destructive",
       })
+    } finally {
       setIsLoading(false)
     }
   }

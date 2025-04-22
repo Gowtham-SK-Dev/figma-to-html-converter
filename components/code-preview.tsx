@@ -5,6 +5,11 @@ import { Card } from "@/components/ui/card"
 import { Copy } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
+import Prism from "prismjs" // Import Prism.js
+import "prismjs/themes/prism-tomorrow.css" // Import a Prism.js theme
+import "prismjs/components/prism-javascript" // Add language support (e.g., JavaScript)
+import "prismjs/components/prism-html" // Add language support (e.g., HTML)
+import "prismjs/components/prism-css" // Add language support (e.g., CSS)
 
 interface CodePreviewProps {
   code: string
@@ -16,9 +21,9 @@ export default function CodePreview({ code, language }: CodePreviewProps) {
   const { toast } = useToast()
 
   useEffect(() => {
-    // In a real implementation, you would use a syntax highlighting library like Prism.js or highlight.js
-    // For this demo, we'll just display the raw code
-    // This is where you would add the syntax highlighting logic
+    if (preRef.current) {
+      Prism.highlightElement(preRef.current) // Apply syntax highlighting
+    }
   }, [code, language])
 
   const copyCode = () => {
@@ -40,8 +45,12 @@ export default function CodePreview({ code, language }: CodePreviewProps) {
           Copy
         </Button>
       </div>
-      <pre ref={preRef} className="p-4 overflow-auto text-sm code-preview" style={{ maxHeight: "500px" }}>
-        <code>{code}</code>
+      <pre
+        ref={preRef}
+        className={`p-4 overflow-auto text-sm code-preview language-${language}`}
+        style={{ maxHeight: "500px" }}
+      >
+        <code className={`language-${language}`}>{code}</code>
       </pre>
     </Card>
   )
